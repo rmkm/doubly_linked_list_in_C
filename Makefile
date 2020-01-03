@@ -1,5 +1,5 @@
-hello: main.o dll.o
-	gcc -Wall -O2 -o hello main.o dll.o
+a.out: main.o dll.o
+	gcc -Wall -O2 -o a.out main.o dll.o
 
 main.o: main.c
 	gcc -c main.c
@@ -8,4 +8,4 @@ dll.o: dll.c
 	gcc -c dll.c
 
 clean:
-	rm -f hello main.o dll.o
+	rm -f a.out main.o dll.o
