@@ -102,33 +102,22 @@ int list_index(list_t *list, const char *data) {
     return -1;
 }
 
-const char *list_pop(list_t *list) {
-    node_t *head = list->dummy->next;
-    if (head->data == NULL) { // list is empty
+const char *list_pop(list_t *list, int i) {
+    int len = list_len(list);
+    if (i < 0 || len - 1 < i) {
         return NULL;
     }
-    const char *data = head->data;
-    node_t *next = head->next;
-    list->dummy->next = next;
-    next->prev = list->dummy;
-    free(head);
+    node_t *current = list->dummy;
+    for (int j = 0; j < i + 1; j++) {
+        current = current->next;
+    }
+    const char *data = current->data;
+    current->prev->next = current->next;
+    current->next->prev = current->prev;
+    free(current);
     return data;
 }
 
-const char *list_push(list_t *list) {
-    node_t *tail = list->dummy->prev;
-    if (tail->data == NULL) { // list is empty
-        return NULL;
-    }
-    const char *data = tail->data;
-    node_t *prev = tail->prev;
-    prev->next = list->dummy;
-    list->dummy->prev = prev;
-    free(tail);
-    return data;
-}
-
-// not remove node
 const char *list_data(list_t *list, int i) {
     if (i < 0) {
         return NULL;
@@ -142,6 +131,25 @@ const char *list_data(list_t *list, int i) {
         current = current->next;
     }
     return current->data;
+}
+
+list_t *list_copy(list_t *list) {
+    list_t *new_list = list_new();
+    node_t *current = list->dummy;
+    while (current->next->data != NULL) {
+        current = current->next;
+        list_append(new_list, current->data);
+    }
+    return new_list;
+}
+
+list_t *list_concat(list_t *dest, list_t *src) {
+    node_t *current = src->dummy;
+    while (current->next->data != NULL) {
+        current = current->next;
+        list_append(dest, current->data);
+    }
+    return dest;
 }
 
 void list_clear(list_t *list) {
@@ -166,23 +174,6 @@ void list_remove(list_t *list, const char *data) {
     }
 }
 
-void list_remove_by_index(list_t *list, int i) {
-    if (i < 0) {
-        return;
-    }
-    int len = list_len(list);
-    if (len - 1 < i) {
-        return;
-    }
-    node_t *current = list->dummy;
-    for (int j = 0; j < i + 1; j++) {
-        current = current->next;
-    }
-    current->prev->next = current->next;
-    current->next->prev = current->prev;
-    free(current);
-}
-
 void list_free(list_t *list) {
     node_t *current = list->dummy;
     while (current->next->data != NULL) {
@@ -195,16 +186,26 @@ void list_free(list_t *list) {
 
 void list_print(list_t *list) {
     node_t *current = list->dummy;
+    printf("[");
     while (current->next->data != NULL) {
         current = current->next;
-        printf("%s\n", current->data);
+        printf("'%s'", current->data);
+        if (current->next->data != NULL) {
+            printf(", ");
+        }
     }
+    printf("]\n");
 }
 
 void list_print_reverse(list_t *list) {
     node_t *current = list->dummy;
+    printf("[");
     while (current->prev->data != NULL) {
         current = current->prev;
-        printf("%s\n", current->data);
+        printf("'%s'", current->data);
+        if (current->prev->data != NULL) {
+            printf(", ");
+        }
     }
+    printf("]\n");
 }
